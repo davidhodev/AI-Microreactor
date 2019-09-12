@@ -1,0 +1,1 @@
+A simple but fairly accurate flow model created on an EXCEL spreadsheet is presented. The model is useful for predicting subsonic glass flows in the viscous-laminar regime, the transition regime, and the molecular flow regime.
