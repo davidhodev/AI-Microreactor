@@ -58,12 +58,14 @@ def getAbstractAndLemmonize():
 
         wordList = wordList + listOfAllWords
         infile.close()
-    print(wordDictionary["flow"])
+    print(wordDictionary["regime"])
     count = 0
-    for i in wordDictionary["flow"]:
+    for i in wordDictionary["regime"]:
         count += i
     print("COUNT: ", count)
-    return wordList, totalNumberOfAbstracts
+    return wordDictionary
+
+    #return wordList, totalNumberOfAbstracts
 
 
 '''
@@ -78,9 +80,15 @@ def plotWords(wordList, numberOfWordsPlotted = 50):
 
 '''
 '''
+def getMaxNumberAndNNZ(wordDictionary):
+    for word in wordDictionary:
+        appendingList = [max(wordDictionary[word]), ((len(wordDictionary[word])-1) - wordDictionary[word].count(0)), sum(wordDictionary[word])]
+        wordDictionary[word].append(appendingList)
 
 def main():
-    wordList, totalNumberOfAbstracts = getAbstractAndLemmonize()
+    wordDictionary = getAbstractAndLemmonize()
+    getMaxNumberAndNNZ(wordDictionary)
+    print(wordDictionary["flow"])
     #plotWords(wordList, 75)
 
 if __name__ == "__main__":
