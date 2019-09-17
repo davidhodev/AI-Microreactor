@@ -41,10 +41,10 @@ def getAbstractAndLemmonize():
     	infile = open(path+str(file))
     	abstract = infile.read()
     	abstract = strip_punctuation(abstract)
-    	abstract = to_lower(abstract) # makes lowercase
-    	listOfAllWords = word_tokenize(abstract) # makers into l
+    	abstract = to_lower(abstract)
+    	listOfAllWords = word_tokenize(abstract)
     	listOfAllWords = [lemmatizer.lemmatize(word) for word in listOfAllWords]
-    	filteredWords = [word for word in listOfAllWords if not word in stop_words and len(word) > 2] # filters out stopwords
+    	filteredWords = [word for word in listOfAllWords if not word in stop_words and len(word) > 2]
     	wordList = wordList + filteredWords
     	infile.close()
     return wordList
