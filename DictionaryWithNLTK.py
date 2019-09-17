@@ -6,42 +6,62 @@ import operator
 import os
 import string
 from string import punctuation
+
+''' Constants '''
 path = "/home/benjamin/Python_Codes/AI-Microreactor/Abstracts/"
-savepath = "/home/benjamin/Python_Codes/AI-Microreactor/Dictionary/"
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words("english"))
-ps = PorterStemmer()
 
+
+'''
+Turns all text into lower case
+Returns single string
+'''
 def to_lower(text):
     return ' '.join([w.lower() for w in word_tokenize(text)])
 
+
+'''
+Strips all abstracts of punctuations
+Return single string
+'''
 def strip_punctuation(s):
     return ''.join(c for c in s if c not in punctuation)
 
-wordlist = []
-myFiles = os.listdir('Abstracts/')
-for files in myFiles:
-	infile = open(path+str(files))
-	a = infile.read()
-	a = strip_punctuation(a)
-	lowera = to_lower(a) # makes lowercase
-	tokens = word_tokenize(lowera) # makers into l
-	tokens = [ps.stem(word) for word in tokens] # Root stem of word, comes out weird
-	#lemmatized_output = ' '.join([lemmatizer.lemmatize(w) for w in tokens])
-	#filtered = ' '.join([w for w in tokens if len(w) > 2]) # attempt at filtering out words 2 or less ch
-	filtereda = [w for w in tokens if not w in stop_words] # filters out stopwords
-	wordlist = wordlist + filtereda
-	
-	infile.close()
 
-largeString = FreqDist(wordlist)
-largeString.plot(50)
-	
+'''
+Gets all abstracts from a directory
+Lemmonizes all Abstracts
+Returns a list of words
+'''
+def getAbstractAndLemmonize():
+    wordList = []
+    abstractFiles = os.listdir('Abstracts/')
+    for file in abstractFiles:
+    	infile = open(path+str(file))
+    	abstract = infile.read()
+    	abstract = strip_punctuation(abstract)
+    	abstract = to_lower(abstract) # makes lowercase
+    	listOfAllWords = word_tokenize(abstract) # makers into l
+    	listOfAllWords = [lemmatizer.lemmatize(word) for word in listOfAllWords]
+    	filteredWords = [word for word in listOfAllWords if not word in stop_words and len(word) > 2] # filters out stopwords
+    	wordList = wordList + filteredWords
+    	infile.close()
+    return wordList
 
-with open("dictionarynltk.txt", 'w') as f:
-	print(largeString, file=f)
-#for key in sorted(wordlist.values()):
-#	print("%s: %s" % (key,wordlist[key]))
-#outfile.write(wordlist)
-#outfile.close()
 
+'''
+Plots all words on a graph
+'''
+def plotWords(wordList, numberOfWordsPlotted = 50):
+    largeString = FreqDist(wordList)
+    largeString.plot(numberOfWordsPlotted)
+    with open("dictionarynltk.txt", 'w') as f:
+    	print(largeString, file=f)
+
+def main():
+    wordList = getAbstractAndLemmonize()
+    plotWords(wordList, 75)
+
+if __name__ == "__main__":
+    main()
