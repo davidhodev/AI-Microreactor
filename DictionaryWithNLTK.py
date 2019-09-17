@@ -11,6 +11,7 @@ from string import punctuation
 path = "/home/benjamin/Python_Codes/AI-Microreactor/Abstracts/"
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words("english"))
+wordDictionary = {}
 
 
 '''
@@ -35,19 +36,34 @@ Lemmonizes all Abstracts
 Returns a list of words
 '''
 def getAbstractAndLemmonize():
+    totalNumberOfAbstracts = 0
     wordList = []
     abstractFiles = os.listdir('Abstracts/')
     for file in abstractFiles:
-    	infile = open(path+str(file))
-    	abstract = infile.read()
-    	abstract = strip_punctuation(abstract)
-    	abstract = to_lower(abstract)
-    	listOfAllWords = word_tokenize(abstract)
-    	listOfAllWords = [lemmatizer.lemmatize(word) for word in listOfAllWords]
-    	filteredWords = [word for word in listOfAllWords if not word in stop_words and len(word) > 2]
-    	wordList = wordList + filteredWords
-    	infile.close()
-    return wordList
+        totalNumberOfAbstracts += 1
+        infile = open(path+str(file))
+        abstract = infile.read()
+        abstract = strip_punctuation(abstract)
+        abstract = to_lower(abstract)
+        listOfAllWords = word_tokenize(abstract)
+        listOfAllWords = [lemmatizer.lemmatize(word) for word in listOfAllWords if not word in stop_words and len(word) > 2]
+        for word in listOfAllWords:
+            if word not in wordDictionary:
+                wordDictionary[word] = [0]*(totalNumberOfAbstracts-1) + [1]
+            else:
+                if len(wordDictionary[word]) < (totalNumberOfAbstracts):
+                    wordDictionary[word] += [0] * ((totalNumberOfAbstracts) - len(wordDictionary[word]))
+                wordDictionary[word][totalNumberOfAbstracts-1] += 1
+
+
+        wordList = wordList + listOfAllWords
+        infile.close()
+    print(wordDictionary["flow"])
+    count = 0
+    for i in wordDictionary["flow"]:
+        count += i
+    print("COUNT: ", count)
+    return wordList, totalNumberOfAbstracts
 
 
 '''
@@ -59,9 +75,13 @@ def plotWords(wordList, numberOfWordsPlotted = 50):
     with open("dictionarynltk.txt", 'w') as f:
     	print(largeString, file=f)
 
+
+'''
+'''
+
 def main():
-    wordList = getAbstractAndLemmonize()
-    plotWords(wordList, 75)
+    wordList, totalNumberOfAbstracts = getAbstractAndLemmonize()
+    #plotWords(wordList, 75)
 
 if __name__ == "__main__":
     main()
