@@ -2,6 +2,7 @@ from nltk import *
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer,wordnet,WordNetLemmatizer
 from collections import OrderedDict
+import math
 import operator
 import os
 import string
@@ -35,7 +36,7 @@ Gets all abstracts from a directory
 Lemmonizes all Abstracts
 Returns a list of words
 '''
-def getAbstractAndLemmonize():
+def BuildDictionaryFromAbstracts():
     totalNumberOfAbstracts = 0
     wordList = []
     abstractFiles = os.listdir('Abstracts/')
@@ -58,11 +59,11 @@ def getAbstractAndLemmonize():
 
         wordList = wordList + listOfAllWords
         infile.close()
-    print(wordDictionary["regime"])
-    count = 0
-    for i in wordDictionary["regime"]:
-        count += i
-    print("COUNT: ", count)
+    #print(wordDictionary["regime"])
+    #count = 0
+    #for i in wordDictionary["regime"]:
+    #    count += i
+    #print("COUNT: ", count)
     return wordDictionary
 
     #return wordList, totalNumberOfAbstracts
@@ -79,16 +80,61 @@ def plotWords(wordList, numberOfWordsPlotted = 50):
 
 
 '''
+Adds the Max number of times a word appears in any one abstract
+Also counts the number of abstracts the word appears in
+Returns a dictionary with key as the word and value as the list
+0: Most number of words used in an abstract
+1: Number of documents word occurs in
+2: Total frequency of word
 '''
 def getMaxNumberAndNNZ(wordDictionary):
     for word in wordDictionary:
-        appendingList = [max(wordDictionary[word]), ((len(wordDictionary[word])-1) - wordDictionary[word].count(0)), sum(wordDictionary[word])]
+        appendingList = [max(wordDictionary[word]), ((len(wordDictionary[word])) - wordDictionary[word].count(0)), sum(wordDictionary[word])]
         wordDictionary[word].append(appendingList)
 
+'''
+Calculates the tf(t,d) Term Frequency
+Uses Augmented Frequency to prevent a bias towards longer documents
+Outputs new Dictionary of all the tf's per word per abstract
+'''
+def calculateTermFrequency(wordDictionary):
+    outputDictionary = {}
+    for word in wordDictionary:
+        frequencyList = wordDictionary[word]
+        termFrequencyPerWord = []
+        for abstractFrequency in range(len(frequencyList)-1):
+            maxOccurenceOfWord = frequencyList[len(frequencyList)-1][0]
+            tf = 0.5*(frequencyList[abstractFrequency] / maxOccurenceOfWord) + 0.5
+            termFrequencyPerWord.append(tf)
+        outputDictionary[word] = termFrequencyPerWord
+    return outputDictionary
+
+'''
+Calculates the Inverse Document Frequency
+Measures how much information the word provides
+Inputs the term Frequency list
+Outputs the dictionary completed with the Tf-Idfs
+'''
+def calculateTfIdf(tfDictionary,wordDictionary):
+    for word in tfDictionary:
+        for tf in range(len(tfDictionary[word])-1):
+            totalDocuments = wordDictionary[word][len(wordDictionary[word])-1][2]
+            print(wordDictionary[word][len(wordDictionary[word])-1])
+            numberOfDocumentsWhereWordOccurs = wordDictionary[word][len(wordDictionary[word])-1][1]
+            idf = math.log(totalDocuments/numberOfDocumentsWhereWordOccurs)
+            tf = tf * idf
+    return tfDictionary
+
+
+
 def main():
-    wordDictionary = getAbstractAndLemmonize()
+    wordDictionary = BuildDictionaryFromAbstracts()
     getMaxNumberAndNNZ(wordDictionary)
+    tfDictionary = calculateTermFrequency(wordDictionary)
+    tfDictionary = calculateTfIdf(tfDictionary, wordDictionary)
+    print(tfDictionary["flow"])
     print(wordDictionary["flow"])
+    #print(wordDictionary["flow"])
     #plotWords(wordList, 75)
 
 if __name__ == "__main__":
